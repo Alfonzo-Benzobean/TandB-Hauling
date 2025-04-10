@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EVE Online Shipping Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #2a2a2a;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      width: 325px;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.7rem;
+      width: 100%;
+      background: #0077ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Shipping Cost Calculator</h2>
+    <label for="volume">Volume (m³)</label>
+    <input type="number" id="volume" placeholder="Enter volume" min="0">
+
+    <label for="collateral">Total value of the items shipped (ISK)</label>
+    <input type="number" id="collateral" placeholder="Enter collateral" min="0">
+
+    <button onclick="calculateCost()">Calculate Cost</button>
+
+    <div class="result" id="result"></div>
+    <button onclick="copyTotal()">Copy Total Cost</button>
+  </div>
+
+  <script>
+    function calculateCost() {
+      const volume = parseFloat(document.getElementById('volume').value);
+      const collateral = parseFloat(document.getElementById('collateral').value);
+
+      if (isNaN(volume) || volume <= 0) {
+        alert("Please enter a valid volume.");
+        return;
+      }
+
+      if (isNaN(collateral) || collateral <= 0) {
+        alert("Please enter a valid total cost.");
+        return;
+      }
+      const volume_cost = volume * 1000;
+      const collateral_cost = Math.round(collateral * 0.01);
+      const cost = volume_cost + collateral_cost;
+
+      document.getElementById('result').innerHTML = 
+      `Volume Cost: ${volume_cost.toLocaleString()} ISK<br>
+       Collateral Cost: ${collateral_cost.toLocaleString()} ISK<br>
+       Total Shipping Cost: <span id="totalCostValue">${cost.toLocaleString()} ISK`;
+    }
+    function copyTotal() {
+      const totalText = document.getElementById('totalCostValue').textContent
+        .replace(' ISK', '')
+        .replace(/,/g, '');
+      navigator.clipboard.writeText(totalText)
+        .then(() => {
+          alert("Total shipping cost copied to clipboard!");
+        })
+        .catch(err => {
+          console.error("Failed to copy: ", err);
+        });
+}
+
+  </script>
+</body>
+</html>
