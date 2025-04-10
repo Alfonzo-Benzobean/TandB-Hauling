@@ -71,7 +71,7 @@
       const volume = parseFloat(document.getElementById('volume').value);
       const collateral = parseFloat(document.getElementById('collateral').value);
 
-      if (isNaN(volume) || volume <= 0 || volume >= 60000) {
+      if (isNaN(volume) || volume >= 0 || volume <= 60000) {
         alert("Please enter a valid volume.");
         return;
       }
