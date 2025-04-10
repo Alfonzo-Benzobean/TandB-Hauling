@@ -68,15 +68,18 @@
 
   <script>
     function calculateCost() {
-      const volume = parseFloat(document.getElementById('volume').value);
-      const collateral = parseFloat(document.getElementById('collateral').value);
+      const volumeInput = document.getElementById('volume').value.trim();
+      const collateralInput = document.getElementById('collateral').value.trim();
 
-      if (isNaN(volume) || volume <= 0 || volume > 60000) {
+      const volume = parseFloat(volumeInput);
+      const collateral = parseFloat(collateralInput);
+
+      if (!volumeInput || isNaN(volume) || volume <= 0 || volume > 60000) {
         alert("Please enter a valid volume.");
         return;
       }
 
-      if (isNaN(collateral) || collateral <= 0) {
+      if (!collateralInput || isNaN(collateral) || collateral <= 0) {
         alert("Please enter a valid total cost.");
         return;
       }
