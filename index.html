@@ -55,10 +55,10 @@
     <h2>Titties and Beer Hauling</h2>
     <h2>Cost Calculator</h2>
     <label for="volume">Volume (m³) [max: 60000 m³]</label>
-    <input type="number" id="volume" placeholder="Enter volume" min="0">
+    <input type="text" id="volume" placeholder="Enter volume">
 
     <label for="collateral">Total value of the items shipped (ISK)</label>
-    <input type="number" id="collateral" placeholder="Enter collateral" min="0">
+    <input type="text" id="collateral" placeholder="Enter collateral">
 
     <button onclick="calculateCost()">Calculate Cost</button>
 
@@ -70,12 +70,41 @@
     </p>
   </div>
   <script>
+    function formatWithCommas(value) {
+      const num = value.replace(/,/g, '');
+      if (isNaN(num) || num === '') return '';
+      return parseFloat(num).toLocaleString();
+    }
+
+    function stripCommas(value) {
+      return value.replace(/,/g, '');
+    }
+
+    function attachCommaFormatter(id) {
+      const input = document.getElementById(id);
+
+      input.addEventListener('input', function () {
+        const raw = stripCommas(this.value);
+        const formatted = formatWithCommas(raw);
+        this.value = formatted;
+
+        // Force cursor to the end of the input
+        setTimeout(() => {
+          this.selectionStart = this.selectionEnd = this.value.length;
+        }, 0);
+      });
+    }
+
+    attachCommaFormatter('volume');
+    attachCommaFormatter('collateral');
+
+
     function calculateCost() {
       const volumeInput = document.getElementById('volume').value.trim();
       const collateralInput = document.getElementById('collateral').value.trim();
 
-      const volume = parseFloat(volumeInput);
-      const collateral = parseFloat(collateralInput);
+      const volume = parseFloat(stripCommas(document.getElementById('volume').value.trim()));
+      const collateral = parseFloat(stripCommas(document.getElementById('collateral').value.trim()));
 
       if (!volumeInput || isNaN(volume) || volume <= 0 || volume > 60000) {
         alert("Please enter a valid volume.");
