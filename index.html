@@ -1,142 +1,414 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Titties and Beer Shipping Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * { box-sizing: border-box; }
+
     body {
       font-family: Arial, sans-serif;
-      background: #1a1a1a;
+      background: #1a1a1a url("We be Haul'n.png") center center / cover fixed no-repeat;
       color: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
-    }
-    .container {
-      background: #2a2a2a;
       padding: 2rem;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 0;
+    }
+
+    h1, .layout {
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 2rem 0;
+      font-size: 1.6rem;
+      color: #00d0ff;
+      letter-spacing: 1px;
+    }
+
+    .layout {
+      display: flex;
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+
+    .panel {
+      background: #2a2a2a;
+      padding: 1.5rem;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      width: 3575x;
+      flex: 1;
     }
+
+    .panel h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+      color: #00d0ff;
+      border-bottom: 1px solid #444;
+      padding-bottom: 0.5rem;
+    }
+
     label {
       display: block;
       margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #ccc;
     }
-    input {
+
+    input, textarea, select {
       width: 100%;
       padding: 0.5rem;
       margin-top: 0.3rem;
       border-radius: 5px;
-      border: none;
+      border: 1px solid #444;
+      background: #1a1a1a;
+      color: #f0f0f0;
+      font-size: 0.95rem;
     }
+
+    textarea {
+      resize: vertical;
+      min-height: 160px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
     button {
-      margin-top: 1.5rem;
-      padding: 0.7rem;
+      margin-top: 1rem;
+      padding: 0.6rem;
       width: 100%;
       background: #0077ff;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s;
     }
+
+    button:hover { background: #005ecc; }
+
+    button.secondary {
+      background: #444;
+    }
+    button.secondary:hover { background: #555; }
+
+    .appraisal-result {
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background: #1a1a1a;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .appraisal-result .price-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.2rem 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .appraisal-result .price-row:last-child { border-bottom: none; }
+
+    .appraisal-result .label { color: #aaa; }
+    .appraisal-result .value { color: #f0f0f0; font-weight: bold; }
+
+    .use-btn {
+      margin-top: 0.8rem;
+      background: #007755;
+    }
+    .use-btn:hover { background: #005c40; }
+
     .result {
       margin-top: 1.5rem;
-      font-size: 1.2rem;
+      font-size: 1rem;
       text-align: center;
+      padding: 0.8rem;
+      background: #1a1a1a;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .result.visible { display: block; }
+
+    .result .total {
+      font-size: 1.2rem;
+      color: #00d0ff;
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+
+    .note {
+      text-align: center;
+      margin-top: 1rem;
+      color: #aaa;
+      font-size: 0.85rem;
+    }
+
+    .note a { color: #00d0ff; }
+
+    .pricing-options {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .pricing-options label {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+
+    .pricing-options input[type=radio] {
+      width: auto;
+      margin: 0;
+    }
+
+    .error-msg {
+      color: #ff6666;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .layout { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Titties and Beer Hauling</h2>
-    <h2>Cost Calculator</h2>
-    <label for="volume">Volume (m³) [max: 60000 m³]</label>
-    <input type="text" id="volume" placeholder="Enter volume">
+  <h1>Titties &amp; Beer Hauling</h1>
 
-    <label for="collateral">Total value of the items shipped (ISK)</label>
-    <input type="text" id="collateral" placeholder="Enter collateral">
+  <div class="layout">
 
-    <button onclick="calculateCost()">Calculate Cost</button>
+    <!-- LEFT: Janice Appraisal -->
+    <div class="panel">
+      <h2>Janice Appraisal</h2>
 
-    <div class="result" id="result"></div>
-    <button onclick="copyTotal()">Copy Total Cost</button>
-    <p style="text-align: center; margin-top: 1rem; color: #aaa;">
-      Note: Make all contracts out to <strong>pumpdonut</strong> <br>
-      Total value can be acquired from <a href="https://janice.e-351.com/" target="_blank" style="color: #00d0ff; text-decoration: underline;">Janice</a> buy prices.
-    </p>
+      <label for="itemList">Paste items (EVE multibuy / inventory format)</label>
+      <textarea id="itemList" placeholder="Tritanium 10000&#10;Pyerite 5000&#10;..."></textarea>
+
+      <label>Pricing</label>
+      <div class="pricing-options">
+        <label><input type="radio" name="pricing" value="buy" checked> Buy</label>
+        <label><input type="radio" name="pricing" value="split"> Split</label>
+        <label><input type="radio" name="pricing" value="sell"> Sell</label>
+      </div>
+
+      <button onclick="appraise()">Appraise</button>
+      <button class="secondary" onclick="clearAppraisal()">Clear</button>
+
+      <div id="appraisalError" class="error-msg"></div>
+
+      <div class="appraisal-result" id="appraisalResult">
+        <div class="price-row">
+          <span class="label">Buy Total</span>
+          <span class="value" id="resBuy">—</span>
+        </div>
+        <div class="price-row">
+          <span class="label">Split Total</span>
+          <span class="value" id="resSplit">—</span>
+        </div>
+        <div class="price-row">
+          <span class="label">Sell Total</span>
+          <span class="value" id="resSell">—</span>
+        </div>
+        <div class="price-row">
+          <span class="label">Volume</span>
+          <span class="value" id="resVolume">—</span>
+        </div>
+        <button class="use-btn" onclick="useAppraisal()">Use in Calculator &rarr;</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Shipping Calculator -->
+    <div class="panel">
+      <h2>Cost Calculator</h2>
+
+      <label for="volume">Volume (m³) <span style="color:#aaa">[max 60,000 m³]</span></label>
+      <input type="text" id="volume" placeholder="Enter volume">
+
+      <label for="collateral">Value Tax (ISK)</label>
+      <input type="text" id="collateral" placeholder="Enter collateral">
+
+      <button onclick="calculateCost()">Calculate Cost</button>
+
+      <div class="result" id="result">
+        <div id="resultBody"></div>
+      </div>
+
+      <button class="secondary" onclick="copyTotal()" style="margin-top:0.5rem">Copy Total Cost</button>
+
+      <p class="note">
+        Make contracts out to <strong>pumpdonut</strong>.<br>
+        Contracts are limited to 60k m3 to support DST moving.<br>
+        You can have as many contracts up as you need.<br>
+      </p>
+    </div>
+
   </div>
+
   <script>
-    function formatWithCommas(value) {
-      const num = value.replace(/,/g, '');
-      if (isNaN(num) || num === '') return '';
-      return parseFloat(num).toLocaleString();
+    const JANICE_KEY = 'UHML5eqrN9AscHoAN6KIUq34iFSCJmik';
+    let lastAppraisal = null;
+
+    // ── Janice appraisal ──────────────────────────────────────────────
+
+    async function appraise() {
+      const items = document.getElementById('itemList').value.trim();
+      const errEl = document.getElementById('appraisalError');
+      errEl.textContent = '';
+
+      if (!items) {
+        errEl.textContent = 'Please paste some items first.';
+        return;
+      }
+
+      const pricing = document.querySelector('input[name=pricing]:checked').value;
+
+      try {
+        const res = await fetch(
+          `https://janice.e-351.com/api/rest/v2/appraisal?market=2&designation=appraisal&pricing=${pricing}&persist=true&compactize=true&pricePercentage=1`,
+          {
+            method: 'POST',
+            headers: {
+              'X-ApiKey': JANICE_KEY,
+              'Content-Type': 'text/plain'
+            },
+            body: items
+          }
+        );
+
+        if (!res.ok) {
+          errEl.textContent = `Janice error: ${res.status} ${res.statusText}`;
+          return;
+        }
+
+        const data = await res.json();
+        lastAppraisal = data;
+        displayAppraisal(data);
+
+      } catch (e) {
+        errEl.textContent = 'Network error — could not reach Janice.';
+        console.error(e);
+      }
     }
 
-    function stripCommas(value) {
-      return value.replace(/,/g, '');
+    function displayAppraisal(data) {
+      const ep     = data.effectivePrices ?? {};
+      const buy    = ep.totalBuyPrice   ?? 0;
+      const sell   = ep.totalSellPrice  ?? 0;
+      const split  = ep.totalSplitPrice ?? 0;
+      const volume = data.totalVolume   ?? 0;
+
+      document.getElementById('resBuy').textContent    = fmt(buy)    + ' ISK';
+      document.getElementById('resSplit').textContent  = fmt(split)  + ' ISK';
+      document.getElementById('resSell').textContent   = fmt(sell)   + ' ISK';
+      document.getElementById('resVolume').textContent = fmt(volume, 2) + ' m³';
+
+      document.getElementById('appraisalResult').style.display = 'block';
     }
+
+    function useAppraisal() {
+      if (!lastAppraisal) return;
+
+      const pricing = document.querySelector('input[name=pricing]:checked').value;
+      const ep     = lastAppraisal.effectivePrices ?? {};
+      const buy    = ep.totalBuyPrice   ?? 0;
+      const sell   = ep.totalSellPrice  ?? 0;
+      const split  = ep.totalSplitPrice ?? 0;
+      const volume = lastAppraisal.totalVolume ?? 0;
+
+      const valueMap = { buy, split, sell };
+      const collateral = valueMap[pricing] ?? buy;
+
+      document.getElementById('collateral').value = Math.round(collateral).toLocaleString();
+      document.getElementById('volume').value     = parseFloat(volume.toFixed(2)).toLocaleString();
+    }
+
+    function clearAppraisal() {
+      document.getElementById('itemList').value = '';
+      document.getElementById('appraisalResult').style.display = 'none';
+      document.getElementById('appraisalError').textContent = '';
+      lastAppraisal = null;
+    }
+
+    // ── Shipping calculator ───────────────────────────────────────────
+
+    function calculateCost() {
+      const volume     = parseFloat(stripCommas(document.getElementById('volume').value));
+      const collateral = parseFloat(stripCommas(document.getElementById('collateral').value));
+
+      if (isNaN(volume) || volume <= 0 || volume > 60000) {
+        alert('Please enter a valid volume (1 – 60,000 m³).');
+        return;
+      }
+      if (isNaN(collateral) || collateral <= 0) {
+        alert('Please enter a valid collateral value.');
+        return;
+      }
+
+      const volumeCost     = volume * 1300;
+      const collateralCost = Math.round(collateral * 0.01);
+      const total          = volumeCost + collateralCost;
+
+      document.getElementById('resultBody').innerHTML =
+        `Volume Cost: ${fmt(volumeCost)} ISK<br>
+         Collateral Cost: ${fmt(collateralCost)} ISK<br>
+         <span class="total">Total: <span id="totalCostValue">${fmt(total)}</span> ISK</span>`;
+
+      document.getElementById('result').classList.add('visible');
+    }
+
+    function copyTotal() {
+      const el = document.getElementById('totalCostValue');
+      if (!el) { alert('Calculate a cost first.'); return; }
+      navigator.clipboard.writeText(el.textContent.replace(/,/g, ''))
+        .then(() => alert('Total copied to clipboard!'))
+        .catch(() => alert('Copy failed — please copy manually.'));
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────
+
+    function fmt(n, decimals = 0) {
+      return parseFloat(n).toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    function stripCommas(s) { return (s || '').replace(/,/g, ''); }
 
     function attachCommaFormatter(id) {
-      const input = document.getElementById(id);
-
-      input.addEventListener('input', function () {
+      document.getElementById(id).addEventListener('input', function () {
         const raw = stripCommas(this.value);
-        const formatted = formatWithCommas(raw);
-        this.value = formatted;
-
-        // Force cursor to the end of the input
-        setTimeout(() => {
-          this.selectionStart = this.selectionEnd = this.value.length;
-        }, 0);
+        if (!isNaN(raw) && raw !== '') {
+          const pos = this.value.length;
+          this.value = parseFloat(raw).toLocaleString();
+          setTimeout(() => { this.selectionStart = this.selectionEnd = this.value.length; }, 0);
+        }
       });
     }
 
     attachCommaFormatter('volume');
     attachCommaFormatter('collateral');
-
-
-    function calculateCost() {
-      const volumeInput = document.getElementById('volume').value.trim();
-      const collateralInput = document.getElementById('collateral').value.trim();
-
-      const volume = parseFloat(stripCommas(document.getElementById('volume').value.trim()));
-      const collateral = parseFloat(stripCommas(document.getElementById('collateral').value.trim()));
-
-      if (!volumeInput || isNaN(volume) || volume <= 0 || volume > 60000) {
-        alert("Please enter a valid volume.");
-        return;
-      }
-
-      if (!collateralInput || isNaN(collateral) || collateral <= 0) {
-        alert("Please enter a valid total cost.");
-        return;
-      }
-      const volume_cost = volume * 1300;
-      const collateral_cost = Math.round(collateral * 0.01);
-      const cost = volume_cost + collateral_cost;
-
-      document.getElementById('result').innerHTML = 
-      `Volume Cost: ${volume_cost.toLocaleString()} ISK<br>
-       Collateral Cost: ${collateral_cost.toLocaleString()} ISK<br>
-       Total Shipping Cost: <span id="totalCostValue">${cost.toLocaleString()} ISK`;
-    }
-    function copyTotal() {
-      const totalText = document.getElementById('totalCostValue').textContent
-        .replace(' ISK', '')
-        .replace(/,/g, '');
-      navigator.clipboard.writeText(totalText)
-        .then(() => {
-          alert("Total shipping cost copied to clipboard!");
-        })
-        .catch(err => {
-          console.error("Failed to copy: ", err);
-        });
-    }
-
   </script>
 </body>
 </html>
