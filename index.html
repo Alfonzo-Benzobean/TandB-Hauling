@@ -245,8 +245,8 @@
       <label for="volume">Volume (m³) <span style="color:#aaa">[max 60,000 m³]</span></label>
       <input type="text" id="volume" placeholder="Enter volume">
 
-      <label for="collateral">Value Tax (ISK)</label>
-      <input type="text" id="collateral" placeholder="Enter collateral">
+      <label for="value_tax">Value Tax (ISK)</label>
+      <input type="text" id="value_tax" placeholder="1% of the value of the haul">
 
       <button onclick="calculateCost()">Calculate Cost</button>
 
@@ -337,9 +337,9 @@
       const volume = lastAppraisal.totalVolume ?? 0;
 
       const valueMap = { buy, split, sell };
-      const collateral = valueMap[pricing] ?? buy;
+      const valueTax = valueMap[pricing] ?? buy;
 
-      document.getElementById('collateral').value = Math.round(collateral).toLocaleString();
+      document.getElementById('value_tax').value = Math.round(valueTax).toLocaleString();
       document.getElementById('volume').value     = parseFloat(volume.toFixed(2)).toLocaleString();
     }
 
@@ -354,24 +354,24 @@
 
     function calculateCost() {
       const volume     = parseFloat(stripCommas(document.getElementById('volume').value));
-      const collateral = parseFloat(stripCommas(document.getElementById('collateral').value));
+      const valueTax = parseFloat(stripCommas(document.getElementById('value_tax').value));
 
       if (isNaN(volume) || volume <= 0 || volume > 60000) {
         alert('Please enter a valid volume (1 – 60,000 m³).');
         return;
       }
-      if (isNaN(collateral) || collateral <= 0) {
-        alert('Please enter a valid collateral value.');
+      if (isNaN(valueTax) || valueTax <= 0) {
+        alert('Please enter a valid value tax amount.');
         return;
       }
 
-      const volumeCost     = volume * 1300;
-      const collateralCost = Math.round(collateral * 0.01);
-      const total          = volumeCost + collateralCost;
+      const volumeCost   = volume * 1300;
+      const valueTaxCost = Math.round(valueTax * 0.01);
+      const total        = volumeCost + valueTaxCost;
 
       document.getElementById('resultBody').innerHTML =
         `Volume Cost: ${fmt(volumeCost)} ISK<br>
-         Collateral Cost: ${fmt(collateralCost)} ISK<br>
+         Value Tax: ${fmt(valueTaxCost)} ISK<br>
          <span class="total">Total: <span id="totalCostValue">${fmt(total)}</span> ISK</span>`;
 
       document.getElementById('result').classList.add('visible');
@@ -408,7 +408,7 @@
     }
 
     attachCommaFormatter('volume');
-    attachCommaFormatter('collateral');
+    attachCommaFormatter('value_tax');
   </script>
 </body>
 </html>
