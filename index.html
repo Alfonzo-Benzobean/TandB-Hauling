@@ -317,7 +317,7 @@
       const buy    = ep.totalBuyPrice   ?? 0;
       const sell   = ep.totalSellPrice  ?? 0;
       const split  = ep.totalSplitPrice ?? 0;
-      const volume = data.totalVolume   ?? 0;
+      const volume = data.totalPackagedVolume ?? data.totalVolume ?? 0;
 
       document.getElementById('resBuy').textContent    = fmt(buy)    + ' ISK';
       document.getElementById('resSplit').textContent  = fmt(split)  + ' ISK';
@@ -335,7 +335,7 @@
       const buy    = ep.totalBuyPrice   ?? 0;
       const sell   = ep.totalSellPrice  ?? 0;
       const split  = ep.totalSplitPrice ?? 0;
-      const volume = lastAppraisal.totalVolume ?? 0;
+      const volume = lastAppraisal.totalPackagedVolume ?? lastAppraisal.totalVolume ?? 0;
 
       const valueMap = { buy, split, sell };
       const valueTax = valueMap[pricing] ?? buy;
